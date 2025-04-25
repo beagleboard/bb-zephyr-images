@@ -1,0 +1,29 @@
+name: Create Release artifacts
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build Images
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install packaging deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends mtools
+      - name: Build PocketBeagle 2 image
+        working-directory: pocketbeagle_2
+        run: make zephyr.img
+      - name: Rename image
+        run: mv pocketbeagle_2/zephyr.img pocketbeagle_2_zephyr.img
+      - name: Pre-Release
+        uses: softprops/action-gh-release@v2
+        with:
+          prerelease: true
+          name: Continuous Release
+          tag_name: continuous-release
+          files: pocketbeagle_2_zephyr.img
