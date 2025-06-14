@@ -1,4 +1,4 @@
-IMG_SIZE ?= 512
+IMG_SIZE ?= 128
 
 u-boot.img:
 	$(info "Download U-Boot")
