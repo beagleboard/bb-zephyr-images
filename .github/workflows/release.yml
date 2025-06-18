@@ -19,12 +19,12 @@ jobs:
           sudo apt-get install -y --no-install-recommends mtools
       - name: Build PocketBeagle 2 image
         working-directory: pocketbeagle_2
-        run: make zephyr.img
+        run: make zephyr.img.xz
       - name: Rename image
-        run: mv pocketbeagle_2/zephyr.img pocketbeagle_2_zephyr.img
+        run: mv pocketbeagle_2/zephyr.img.xz pocketbeagle_2_zephyr.img.xz
       - name: Release
         uses: softprops/action-gh-release@v2
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         with:
           generate_release_notes: true
-          files: pocketbeagle_2_zephyr.img
+          files: pocketbeagle_2_zephyr.img.xz
