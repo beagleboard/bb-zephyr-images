@@ -20,9 +20,14 @@ zephyr.img: u-boot.img tispl.bin tiboot3.bin
 	mmd -i zephyr.img extlinux
 	mcopy -i zephyr.img assets/extlinux.conf ::extlinux/
 
+zephyr.img.xz: zephyr.img
+	$(info "Compressing release build")
+	xz -z zephyr.img
+
 .PHONY: clean
 clean:
 	rm -rf u-boot.img
 	rm -rf tispl.bin
 	rm -rf tiboot3.bin
 	rm -rf zephyr.img
+	rm -rf zephyr.img.xz
