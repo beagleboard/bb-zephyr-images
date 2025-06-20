@@ -1,16 +1,18 @@
 IMG_SIZE ?= 128
+BASE_BOOTLOADER_URL ?= https://github.com/beagleboard/u-boot-pocketbeagle2/releases/download
+BOOTLOADER_RELEASE_VERSION ?= v2025.07-rc4-am6232-pocketbeagle2-11.01.01
 
 u-boot.img:
 	$(info "Download U-Boot")
-	wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/u-boot.img
+	wget ${BASE_BOOTLOADER_URL}/${BOOTLOADER_RELEASE_VERSION}/u-boot.img
 
 tispl.bin:
 	$(info "Download TI-SPL")
-	wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/tispl.bin
+	wget ${BASE_BOOTLOADER_URL}/${BOOTLOADER_RELEASE_VERSION}/tispl.bin
 
 tiboot3.bin:
 	$(info "Download TI-Boot3")
-	wget https://pocketbeagle.beagleboard.io/u-boot-pocketbeagle2/tiboot3.bin
+	wget ${BASE_BOOTLOADER_URL}/${BOOTLOADER_RELEASE_VERSION}/tiboot3.bin
 
 zephyr.img: u-boot.img tispl.bin tiboot3.bin
 	$(info "Building image")
