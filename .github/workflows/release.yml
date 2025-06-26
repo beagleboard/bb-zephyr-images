@@ -3,8 +3,9 @@ name: Create Release artifacts
 on:
   push:
     branches: [ "main" ]
-    tags:
-      - v*
+  # Build every Monday
+  schedule:
+    - cron: '0 0 * * 1'
 
 jobs:
   build:
@@ -13,18 +14,37 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install packaging deps
         run: |
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends mtools
+
       - name: Build PocketBeagle 2 image
         working-directory: pocketbeagle_2
         run: make -j$(nproc) zephyr.img.xz
+
       - name: Rename image
         run: mv pocketbeagle_2/zephyr.img.xz pocketbeagle_2_zephyr.img.xz
+
+      - name: Generate OS List
+        env:
+          OS_LIST_NAME: "Zephyr SD Card Image"
+          OS_LIST_DESC: "Run Zephyr on A53 Cores"
+          OS_LIST_ICON: "https://avatars.githubusercontent.com/u/19595895?s=200&v=4"
+          DEVICE: "pocketbeagle2-am62"
+        run: |
+          export URL="https://github.com/beagleboard/bb-zephyr-images/releases/download/continuous-release/pocketbeagle_2_zephyr.img.xz"
+          export SHA=$(sha256sum pocketbeagle_2_zephyr.img.xz | cut -d " " -f 1)
+          export RELEASE_DATE=$(date +"%Y-%m-%d")
+          jq -n '[ .name = env.OS_LIST_NAME | .description = env.OS_LIST_DESC | .icon = env.OS_LIST_ICON | .devices = [ env.DEVICE ] | .tags = [ "zephyr" ] | .url = env.URL | .image_download_sha256 = env.SHA | .release_date = env.RELEASE_DATE ]' > os_list.json
+
       - name: Release
         uses: softprops/action-gh-release@v2
-        if: ${{ startsWith(github.ref, 'refs/tags/') }}
         with:
-          generate_release_notes: true
-          files: pocketbeagle_2_zephyr.img.xz
+          prerelease: true
+          name: Continuous Release
+          tag_name: continuous-release
+          files: |
+            pocketbeagle_2_zephyr.img.xz
+            os_list.json
