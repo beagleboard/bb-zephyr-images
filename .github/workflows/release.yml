@@ -3,6 +3,8 @@ name: Create Release artifacts
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   # Build every Monday
   schedule:
     - cron: '0 0 * * 1'
@@ -39,8 +41,9 @@ jobs:
           export RELEASE_DATE=$(date +"%Y-%m-%d")
           jq -n '[ .name = env.OS_LIST_NAME | .description = env.OS_LIST_DESC | .icon = env.OS_LIST_ICON | .devices = [ env.DEVICE ] | .tags = [ "zephyr" ] | .url = env.URL | .image_download_sha256 = env.SHA | .release_date = env.RELEASE_DATE ]' > os_list.json
 
-      - name: Release
+      - name: Pre-Release
         uses: softprops/action-gh-release@v2
+        if: github.event_name != 'pull_request'
         with:
           prerelease: true
           name: Continuous Release
