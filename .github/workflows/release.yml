@@ -39,7 +39,8 @@ jobs:
           export URL="https://github.com/beagleboard/bb-zephyr-images/releases/download/continuous-release/pocketbeagle_2_zephyr.img.xz"
           export SHA=$(sha256sum pocketbeagle_2_zephyr.img.xz | cut -d " " -f 1)
           export RELEASE_DATE=$(date +"%Y-%m-%d")
-          jq -n '[ .name = env.OS_LIST_NAME | .description = env.OS_LIST_DESC | .icon = env.OS_LIST_ICON | .devices = [ env.DEVICE ] | .tags = [ "zephyr" ] | .url = env.URL | .image_download_sha256 = env.SHA | .release_date = env.RELEASE_DATE ]' > os_list.json
+          export IMG_DOWNLOAD_SIZE=$(stat -c '%s' pocketbeagle_2_zephyr.img.xz)
+          jq -n --argjson image_download_size $IMG_DOWNLOAD_SIZE '[ .name = env.OS_LIST_NAME | .description = env.OS_LIST_DESC | .icon = env.OS_LIST_ICON | .devices = [ env.DEVICE ] | .tags = [ "zephyr" ] | .url = env.URL | .image_download_sha256 = env.SHA | .release_date = env.RELEASE_DATE | .image_download_size = $image_download_size ]' > os_list.json
 
       - name: Pre-Release
         uses: softprops/action-gh-release@v2
