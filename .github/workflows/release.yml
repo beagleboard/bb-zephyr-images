@@ -20,7 +20,7 @@ jobs:
       - name: Install packaging deps
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y --no-install-recommends mtools
+          sudo apt-get install -y --no-install-recommends mtools u-boot-tools device-tree-compiler
 
       - name: Build PocketBeagle 2 image
         working-directory: pocketbeagle_2

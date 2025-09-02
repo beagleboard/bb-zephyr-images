@@ -1,0 +1,1 @@
+fatload mmc 1:1 0x080200000 zephyr.bin; dcache flush; icache flush; dcache off; icache off; go 0x080200000
