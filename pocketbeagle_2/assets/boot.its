@@ -1,0 +1,14 @@
+/dts-v1/;
+
+/ {
+	description = "PocketBeagle 2 Zephyr Boot";
+
+	images {
+		default = "script";
+
+		script {
+			data = /incbin/("./boot.txt");
+			type = "script";
+		};
+	};
+};
