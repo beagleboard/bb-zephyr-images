@@ -33,7 +33,7 @@ jobs:
         env:
           OS_LIST_NAME: "Zephyr SD Card Image"
           OS_LIST_DESC: "Run Zephyr on A53 Cores"
-          OS_LIST_ICON: "https://avatars.githubusercontent.com/u/19595895?s=200&v=4"
+          OS_LIST_ICON: "https://media.githubusercontent.com/media/beagleboard/bb-imager-rs/refs/heads/main/assets/os/zephyr.webp"
           DEVICE: "pocketbeagle2-am62"
         run: |
           export URL="https://github.com/beagleboard/bb-zephyr-images/releases/download/continuous-release/pocketbeagle_2_zephyr.img.xz"
