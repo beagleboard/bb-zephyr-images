@@ -13,6 +13,11 @@ jobs:
   build:
     name: Build Images
     runs-on: ubuntu-24.04
+    env:
+      OS_LIST_NAME: "Zephyr SD Card Image"
+      OS_LIST_DESC: "Run Zephyr on A53 Cores"
+      OS_LIST_ICON: "https://media.githubusercontent.com/media/beagleboard/bb-imager-rs/refs/heads/main/assets/os/zephyr.webp"
+      DEVICE: "pocketbeagle2-am62"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,26 +27,26 @@ jobs:
           sudo apt-get update -y
           sudo apt-get install -y --no-install-recommends mtools u-boot-tools device-tree-compiler
 
-      - name: Build PocketBeagle 2 image
-        working-directory: pocketbeagle_2
-        run: make -j$(nproc) zephyr.img.xz
-
-      - name: Rename image
-        run: mv pocketbeagle_2/zephyr.img.xz pocketbeagle_2_zephyr.img.xz
-
-      - name: Generate OS List
-        env:
-          OS_LIST_NAME: "Zephyr SD Card Image"
-          OS_LIST_DESC: "Run Zephyr on A53 Cores"
-          OS_LIST_ICON: "https://media.githubusercontent.com/media/beagleboard/bb-imager-rs/refs/heads/main/assets/os/zephyr.webp"
-          DEVICE: "pocketbeagle2-am62"
+      - name: Setup
         run: |
-          export URL="https://github.com/beagleboard/bb-zephyr-images/releases/download/continuous-release/pocketbeagle_2_zephyr.img.xz"
-          export SHA=$(sha256sum pocketbeagle_2_zephyr.img.xz | cut -d " " -f 1)
           export RELEASE_DATE=$(date +"%Y-%m-%d")
-          export IMG_DOWNLOAD_SIZE=$(stat -c '%s' pocketbeagle_2_zephyr.img.xz)
-          export EXTRACT_SIZE=$(xz --robot --list pocketbeagle_2_zephyr.img.xz | awk 'END {print $5}')
-          jq -n --argjson image_download_size $IMG_DOWNLOAD_SIZE --argjson extract_size $EXTRACT_SIZE '[ .name = env.OS_LIST_NAME | .description = env.OS_LIST_DESC | .icon = env.OS_LIST_ICON | .devices = [ env.DEVICE ] | .tags = [ "zephyr" ] | .url = env.URL | .image_download_sha256 = env.SHA | .release_date = env.RELEASE_DATE | .image_download_size = $image_download_size | .extract_size = $extract_size ]' > os_list.json
+          echo "RELEASE_DATE=${RELEASE_DATE}" >> $GITHUB_ENV
+          mkdir dist
+          jq -n '.os_list = []' > os_list.json
+
+      - name: Build PocketBeagle 2 image
+        run: |
+          make -C pocketbeagle_2 -j$(nproc) zephyr.img.xz
+          mv pocketbeagle_2/zephyr.img.xz dist/${DEVICE}.img.xz
+          ./os_list.sh ${DEVICE}.img.xz
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v5
+        if: github.event_name == 'pull_request'
+        with:
+          path: |
+            dist/*.img.xz
+            os_list.json
 
       - name: Pre-Release
         uses: softprops/action-gh-release@v2
@@ -51,5 +56,5 @@ jobs:
           name: Continuous Release
           tag_name: continuous-release
           files: |
-            pocketbeagle_2_zephyr.img.xz
+            dist/*.img.xz
             os_list.json
