@@ -10,10 +10,10 @@ DOWNLOAD_SIZE=$(wc -c < ${OUTPUT_FILE} | tr -d ' ')
 EXTRACT_SIZE=$(xz --robot --list ${OUTPUT_FILE} | awk 'END {print $5}')
 URL="${BASE_URL}/${TARGET}"
 jq --argjson extract_size $EXTRACT_SIZE --arg sha "${SHA}" --arg url ${URL} \
-        --arg download_size ${DOWNLOAD_SIZE} \
+        --argjson download_size ${DOWNLOAD_SIZE} \
         '.os_list += [{ "name": env.OS_LIST_NAME, "description": env.OS_LIST_DESC,
         "icon": env.OS_LIST_ICON, "devices": [ env.DEVICE ], "tags": [ "zephyr" ],
-        "image_download_sha256": $sha, "image_download_size": $download_size "url": $url,
+        "image_download_sha256": $sha, "image_download_size": $download_size, "url": $url,
         "release_date": env.RELEASE_DATE, "extract_size": $extract_size } ]' \
         os_list.json > os_list.json.tmp
 mv os_list.json.tmp os_list.json
